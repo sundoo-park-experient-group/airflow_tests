@@ -2,7 +2,7 @@ from airflow.decorators import dag, task
 from datetime import datetime, timedelta
 from airflow.operators.dummy import DummyOperator
 from airflow.utils.trigger_rule import TriggerRule
-from airflow.operators.python import BranchPythonOperator
+from airflow.operators.python import BranchPythonOperator, PythonOperator
 from airflow.models.baseoperator import chain
 from airflow.utils.task_group import TaskGroup
 from airflow.sensors.filesystem import FileSensor
@@ -27,9 +27,10 @@ def sensor_exmples_with_S3():
     start = DummyOperator(task_id="start")
     end = DummyOperator(task_id="end", trigger_rule=TriggerRule.NONE_FAILED)
 
-    current_ts = datetime.now()
-    current_year_month = datetime.now().strftime("%Y-%m")
-    current_month_day = datetime.now().strftime("%m%d")
+    template_dict = {
+        "directory_name": "{{ dag_run.start_date.strftime('%Y-%m') }}",
+        "file_search_by_date": "{{ dag_run.start_date.strftime('%m%d') }}"
+    }
 
 
     def _failure_callback_func(context):
@@ -42,11 +43,14 @@ def sensor_exmples_with_S3():
     def wait_for_minute_hits_zero(*minute):
         print(minute)
         print(minute[1])
-        print(current_ts)
-        print(current_year_month)
-        print(current_month_day)
         # return not int(minute) % 10
         return True
+
+    # Python Operator(Task) to pass in jinja templates and return parsed(rendered) output
+    @task(multiple_outputs=True)
+    def jinja_template_parser(kwargs):
+        return kwargs
+
 
     # PythonSensor that waits until the callable function  returns True
     waiting_for_python_method = PythonSensor(
@@ -100,7 +104,8 @@ def sensor_exmples_with_S3():
         # bucket_key=f"s3://sundoo-park-sample-bucket-1.0/{current_date}/",
 
         # Option 2 (To check if any file exists in a specified directory): use a wildcard with full path
-        bucket_key=f"s3://sundoo-park-sample-bucket-1.0/{current_year_month}/*{current_month_day}*",
+        # bucket_key=f"s3://sundoo-park-sample-bucket-1.0/{current_year_month}/*{current_month_day}*",
+        bucket_key="s3://sundoo-park-sample-bucket-1.0/{{ dag_run.start_date.strftime('%Y-%m') }}/*{{ dag_run.start_date.strftime('%m%d') }}*",
 
         # bucket_name is needed only when bucket_key doesn't start with s3://
         # bucket_name='',
@@ -108,8 +113,6 @@ def sensor_exmples_with_S3():
         # wildcard_match is used to include * in the bucket key. * works like a wildcard.
         wildcard_match=True,
     )
-
-
 
     start >> waiting_for_python_method >> waiting_for_file >> waiting_for_file_from_S3 >> end
 

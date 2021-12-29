@@ -25,7 +25,7 @@ Purpose of this dag:
 )
 def adv_task_flow_api_list_mapping_testest():
     start = DummyOperator(task_id="start")
-    end = DummyOperator(task_id="end", trigger_rule=TriggerRule.NONE_FAILED)
+    end = DummyOperator(task_id="end", trigger_rule="none_failed")
 
     # each Dag run's start_date's minute
     minute = "{{ dag_run.start_date.strftime('%M') }}"
