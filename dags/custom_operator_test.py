@@ -1,4 +1,4 @@
-from custom_operator.custom_operator import S3toLocalFSOperator
+from crndata_s3.custom_operator import S3toLocalFSOperator
 from airflow.decorators import dag
 from airflow.operators.dummy import DummyOperator
 from datetime import datetime, timedelta

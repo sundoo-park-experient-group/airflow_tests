@@ -61,6 +61,7 @@ with DAG('local_to_S3', default_args=default_args, schedule_interval='@daily', c
         echo "dag_run.start_date.strftime('%A'): {{dag_run.start_date.strftime('%A')}}"
         echo "dag_run.start_date.strftime('%Y-%m-%d'): {{dag_run.start_date.strftime('%Y-%m-%d')}}"
         echo {{ dag_run.start_date.strftime('%m') }}
+        echo "dag_run.dag_id: {{dag_run.dag_id}}"
     """
 
     bash_task = BashOperator(

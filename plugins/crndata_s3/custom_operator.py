@@ -19,7 +19,9 @@ class S3toLocalFSOperator(BaseOperator):
 
         if hook.check_for_key(self.key_name, self.bucket_name):
             s3_file_object = hook.get_key(self.key_name, self.bucket_name)
-            s3_file_list = hook.list_keys(self.bucket_name)
+
+            # Lists keys in a bucket under prefix and not containing delimiter
+            s3_file_list = hook.list_keys(bucket_name=self.bucket_name, prefix='2021-12/', delimiter="12")
             s3_file_prefix = hook.list_prefixes(self.bucket_name)
             print("obj:", s3_file_object)
             print("file list:", s3_file_list)

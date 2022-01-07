@@ -4,7 +4,7 @@ from airflow.decorators import dag, task
 from airflow.models.baseoperator import chain
 from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 from airflow.operators.dummy import DummyOperator
-from airflow.providers.amazon.aws.operators.redshift import RedshiftSQLOperator
+# from airflow.providers.amazon.aws.operators.redshift import RedshiftSQLOperator
 from airflow.providers.amazon.aws.transfers.s3_to_redshift import S3ToRedshiftOperator
 
 @task
